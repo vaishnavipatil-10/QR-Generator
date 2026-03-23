@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QR Forge</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg-deep:   #060818;
+  --bg-mid:    #0a0f28;
+  --glass:     rgba(255,255,255,0.06);
+  --glass-hi:  rgba(255,255,255,0.10);
+  --glass-brdr:rgba(255,255,255,0.12);
+  --glass-brdr-hi: rgba(255,255,255,0.28);
+  --text:      #f0f2ff;
+  --text-2:    #9ba4c7;
+  --text-3:    #5a6490;
+  --violet:    #8b5cf6;
+  --indigo:    #6366f1;
+  --cyan:      #22d3ee;
+  --pink:      #ec4899;
+  --green:     #34d399;
+  --sans:      'Outfit', system-ui, sans-serif;
+  --mono:      'DM Mono', monospace;
+}
+
+html, body {
+  height: 100%;
+  background: var(--bg-deep);
+  color: var(--text);
+  font-family: var(--sans);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+.bg {
+  position: fixed; inset: 0;
+  pointer-events: none; z-index: 0;
+  overflow: hidden;
+}
+
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.55;
+  animation: drift linear infinite;
+}
+
+.blob-1 {
+  width: 520px; height: 520px;
+  background: radial-gradient(circle, #6d28d9 0%, transparent 70%);
+  top: -120px; left: -100px;
+  animation-duration: 22s;
+  animation-delay: 0s;
+}
+.blob-2 {
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, #0e7490 0%, transparent 70%);
+  top: 30%; right: -180px;
+  animation-duration: 28s;
+  animation-delay: -9s;
+}
+.blob-3 {
+  width: 420px; height: 420px;
+  background: radial-gradient(circle, #be185d 0%, transparent 70%);
+  bottom: -80px; left: 30%;
+  animation-duration: 18s;
+  animation-delay: -5s;
+}
+.blob-4 {
+  width: 300px; height: 300px;
+  background: radial-gradient(circle, #1d4ed8 0%, transparent 70%);
+  top: 55%; left: 10%;
+  animation-duration: 32s;
+  animation-delay: -14s;
+}
+
+@keyframes drift {
+  0%   { transform: translate(0,   0)   scale(1);   }
+  33%  { transform: translate(40px, -30px) scale(1.08); }
+  66%  { transform: translate(-25px, 45px) scale(0.95); }
+  100% { transform: translate(0,   0)   scale(1);   }
+}
+
+.page {
+  position: relative; z-index: 1;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  gap: 40px;
+}
+
+.logo-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 18px;
+  border-radius: 100px;
+  background: var(--glass);
+  border: 1px solid var(--glass-brdr);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-2);
+  animation: fadeUp 0.5s ease both;
+}
+
+.logo-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--cyan);
+  box-shadow: 0 0 8px var(--cyan);
+  animation: pulse-dot 2.4s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; box-shadow: 0 0 8px var(--cyan); }
+  50%       { opacity: 0.5; box-shadow: 0 0 3px var(--cyan); }
+}
+
+.hero {
+  text-align: center;
+  animation: fadeUp 0.5s 0.08s ease both;
+}
+
+h1 {
+  font-size: clamp(38px, 7vw, 64px);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  color: var(--text);
+}
+
+h1 .grad {
+  background: linear-gradient(135deg, var(--cyan) 0%, var(--violet) 60%, var(--pink) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.tagline {
+  margin-top: 14px;
+  font-size: 15px;
+  font-weight: 300;
+  color: var(--text-2);
+  letter-spacing: 0.01em;
+  line-height: 1.6;
+}
+
+.card {
+  width: 100%;
+  max-width: 560px;
+  background: var(--glass);
+  border: 1px solid var(--glass-brdr);
+  border-radius: 24px;
+  padding: 36px;
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.04) inset,
+    0 24px 64px rgba(0,0,0,0.5);
+  animation: fadeUp 0.5s 0.14s ease both;
+  transition: border-color 0.3s;
+}
+
+.card:hover { border-color: var(--glass-brdr-hi); }
+
+.input-wrap {
+  position: relative;
+  margin-bottom: 14px;
+}
+
+.input-icon {
+  position: absolute;
+  left: 16px; top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-3);
+  pointer-events: none;
+  transition: color 0.2s;
+}
+
+.input-wrap:focus-within .input-icon { color: var(--cyan); }
+
+input[type="text"] {
+  width: 100%;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--glass-brdr);
+  border-radius: 14px;
+  padding: 16px 16px 16px 46px;
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  outline: none;
+  transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+}
+
+input[type="text"]::placeholder { color: var(--text-3); }
+
+input[type="text"]:focus {
+  border-color: rgba(34,211,238,0.5);
+  background: rgba(34,211,238,0.04);
+  box-shadow: 0 0 0 3px rgba(34,211,238,0.08);
+}
+
+.gen-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 16px;
+  border: none;
+  border-radius: 14px;
+  background: linear-gradient(135deg, var(--indigo), var(--violet));
+  color: #fff;
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
+  box-shadow: 0 4px 24px rgba(99,102,241,0.4);
+  position: relative;
+  overflow: hidden;
+}
+
+.gen-btn::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.12), transparent);
+  border-radius: inherit;
+}
+
+.gen-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 32px rgba(99,102,241,0.55);
+}
+
+.gen-btn:active { transform: translateY(0); }
+.gen-btn:disabled { opacity: 0.55; pointer-events: none; }
+
+.btn-txt { position: relative; }
+
+.spinner {
+  display: none;
+  width: 16px; height: 16px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.65s linear infinite;
+  position: relative;
+}
+
+.gen-btn:disabled .spinner { display: block; }
+.gen-btn:disabled .btn-txt { display: none; }
+
+.error-line {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: #f87171;
+  min-height: 16px;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+.error-line.show { opacity: 1; transform: translateY(0); }
+
+.result-section {
+  width: 100%;
+  max-width: 560px;
+  display: none;
+  animation: fadeUp 0.45s cubic-bezier(0.16,1,0.3,1) both;
+}
+
+.result-section.visible { display: block; }
+
+.result-card {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  background: var(--glass);
+  border: 1px solid var(--glass-brdr);
+  border-radius: 20px;
+  overflow: hidden;
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  box-shadow: 0 16px 48px rgba(0,0,0,0.4);
+}
+
+.result-card::before {
+  content: '';
+  width: 3px;
+  background: linear-gradient(180deg, var(--cyan), var(--violet), var(--pink));
+  flex-shrink: 0;
+}
+
+.qr-panel {
+  padding: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-right: 1px solid var(--glass-brdr);
+}
+
+.qr-frame {
+  width: 148px; height: 148px;
+  border-radius: 12px;
+  padding: 3px;
+  background: linear-gradient(135deg, var(--cyan), var(--violet));
+  box-shadow: 0 0 32px rgba(99,102,241,0.3);
+}
+
+.qr-inner {
+  width: 100%; height: 100%;
+  background: #fff;
+  border-radius: 10px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.qr-inner img {
+  width: 100%; height: 100%;
+  display: block;
+  image-rendering: pixelated;
+}
+
+.result-info {
+  flex: 1;
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.info-row { display: flex; flex-direction: column; gap: 4px; }
+
+.info-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+
+.info-value {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-2);
+  word-break: break-all;
+  line-height: 1.5;
+}
+
+.dl-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 20px;
+  border-radius: 10px;
+  border: 1px solid var(--glass-brdr-hi);
+  background: rgba(255,255,255,0.06);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, transform 0.15s;
+  align-self: flex-start;
+  margin-top: auto;
+}
+
+.dl-btn:hover {
+  background: rgba(255,255,255,0.12);
+  border-color: rgba(34,211,238,0.4);
+  transform: translateY(-1px);
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+@media (max-width: 500px) {
+  .page { padding: 32px 16px; }
+  .card { padding: 24px; }
+  .result-card { flex-direction: column; }
+  .result-card::before { width: 100%; height: 3px; }
+  .qr-panel { border-right: none; border-bottom: 1px solid var(--glass-brdr); }
+  h1 { font-size: 36px; }
+}
+</style>
+</head>
+<body>
+
+<div class="bg">
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+  <div class="blob blob-4"></div>
+</div>
+
+<div class="page">
+
+  <div class="hero">
+    <h1>Encode anything,<br><span class="grad">beautifully.</span></h1>
+    <p class="tagline">Turn any URL or text into a crisp QR code — instantly.</p>
+  </div>
+
+  <div class="card">
+    <div class="input-wrap">
+      <svg class="input-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+        <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+      </svg>
+      <input type="text" id="urlInput"
+             placeholder="https://example.com or any text"
+             maxlength="2048" autocomplete="off" spellcheck="false"
+             aria-label="URL or text to encode">
+    </div>
+
+    <button class="gen-btn" id="genBtn" aria-label="Generate QR code">
+      <span class="btn-txt">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:6px;margin-top:-2px"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h3v3h-3zM17 17h3v3h-3zM14 20h3"/></svg>
+        Generate QR Code
+      </span>
+      <span class="spinner"></span>
+    </button>
+
+    <p class="error-line" id="errorMsg" role="alert" aria-live="polite">
+      <span>&#9888;</span><span id="errorText"></span>
+    </p>
+  </div>
+
+  <div class="result-section" id="resultSection">
+    <div class="result-card">
+      <div class="qr-panel">
+        <div class="qr-frame">
+          <div class="qr-inner">
+            <img id="qrImage" alt="Generated QR Code">
+          </div>
+        </div>
+      </div>
+      <div class="result-info">
+        <div class="info-row">
+          <span class="info-label">Encoded</span>
+          <span class="info-value" id="urlTag"></span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Format</span>
+          <span class="info-value">PNG &middot; Error correction H</span>
+        </div>
+        <a class="dl-btn" id="dlBtn" download="qr-code.png" aria-label="Download QR code">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download PNG
+        </a>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+(function () {
+  'use strict';
+  const MAX_LEN = 2048;
+
+  const input   = document.getElementById('urlInput');
+  const btn     = document.getElementById('genBtn');
+  const result  = document.getElementById('resultSection');
+  const img     = document.getElementById('qrImage');
+  const dlBtn   = document.getElementById('dlBtn');
+  const urlTag  = document.getElementById('urlTag');
+  const errLine = document.getElementById('errorMsg');
+  const errText = document.getElementById('errorText');
+
+  let prevUrl = null;
+
+  function showError(msg) {
+    errText.textContent = msg;
+    errLine.classList.add('show');
+  }
+  function clearError() { errLine.classList.remove('show'); }
+  function setLoading(on) { btn.disabled = on; }
+
+  async function generate() {
+    const text = input.value.trim();
+    if (!text) { showError('Please enter a URL or text.'); input.focus(); return; }
+    if (text.length > MAX_LEN) { showError('Input must be ' + MAX_LEN + ' characters or fewer.'); return; }
+    clearError();
+    setLoading(true);
+    result.classList.remove('visible');
+
+    try {
+      const res = await fetch('/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: text }),
+      });
+      if (!res.ok) {
+        const j = await res.json().catch(() => ({}));
+        throw new Error(j.error || 'Server error (' + res.status + ')');
+      }
+      const blob = await res.blob();
+      if (prevUrl) URL.revokeObjectURL(prevUrl);
+      prevUrl = URL.createObjectURL(blob);
+
+      img.src   = prevUrl;
+      dlBtn.href = prevUrl;
+      urlTag.textContent = text.length > 52 ? text.slice(0, 49) + '...' : text;
+      result.classList.add('visible');
+    } catch (e) {
+      showError(e.message || 'Something went wrong.');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  btn.addEventListener('click', generate);
+  input.addEventListener('keydown', e => { if (e.key === 'Enter') generate(); });
+  input.addEventListener('input', clearError);
+})();
+</script>
+</body>
+</html>
